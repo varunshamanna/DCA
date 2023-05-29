@@ -1,0 +1,16 @@
+# MacOS system files
+.DS_Store
+
+# Nextflow files and directories
+work
+.nextflow
+.nextflow.log*
+
+# Databases, data, output
+databases
+input
+output
+*.html
+
+# Singularity cache
+singularity_cache
