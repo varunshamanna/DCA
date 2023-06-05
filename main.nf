@@ -4,10 +4,6 @@ nextflow.enable.dsl=2
 //Pipiline version
 pipelineVersion = '1.0'
 
-//params.coverage_threshold = 5
-
-// Start message
-//startMessage(pipelineVersion)
 
 include {TRIMMING} from "$projectDir/modules/trimming"
 include { INDEX_REFERENCE; MAPPING; SAM_TO_SORTED_BAM; SNP_CALL; HET_SNP_COUNT; MAPPING_QC } from "$projectDir/modules/coverage"
@@ -21,13 +17,27 @@ if (params.help) {
         helpMessage()
     }else if (params.reads && params.reference && params.output ){
   workflow {
+
+    //create raw reads channel
     raw_read_pairs_ch = Channel.fromFilePairs("$params.reads/*_{,R}{1,2}{,_001}.{fq,fastq}{,.gz}", checkIfExists: true)
     .ifEmpty { error "Cannot find any reads matching: ${params.reads}" }
+
+    //Do Trimming using Fastp
     TRIMMING(raw_read_pairs_ch)
+
+    //Indexing reference using BWA
     INDEX_REFERENCE(file(params.reference))
+
+    //Map reads using BWA MEM
     MAPPING(INDEX_REFERENCE.out, TRIMMING.out.processed_reads)
+
+    //convert sam to bam and count sequence coverage and depth
     SAM_TO_SORTED_BAM(MAPPING.out.sam, params.lite)
+
+    //Call SNP using BCF tools and count HET SNP
     SNP_CALL(params.reference, SAM_TO_SORTED_BAM.out.bam, params.lite) | HET_SNP_COUNT
+    
+    //Genrate QC report 
     MAPPING_QC(
         SAM_TO_SORTED_BAM.out.ref_coverage
         .join(SAM_TO_SORTED_BAM.out.ref_depth, failOnDuplicate: true, failOnMismatch: true)
@@ -50,9 +60,7 @@ if (params.help) {
         sort: { it.split(',')[0] },
         newLine: true
     )
-    //ASSESS_COVERAGE(reads, INDEX_REFERENCE.out, params.coverage_threshold)
-    //COMBINE_COVERAGE_RESULTS(ASSESS_COVERAGE.out.collect())
   }
 } else {
-    error "Please specify reads, a reference and an output directory with --reads, --reference and --output_dir"
+    error "Please specify reads, a reference and an output directory with --reads, --reference and --output"
 }
