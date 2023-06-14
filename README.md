@@ -8,8 +8,8 @@
 This pieline can be used to evaluate Depth, Coverage and Heterozygous SNP count to evaluate the mapping QC of raw reads.
 
 Requirement:
-Nextflow
-Docker
+-[Nextflow](https://www.nextflow.io/)
+-[Docker](https://www.docker.com/)
 
 ## Accepted Inputs
 - Currently, only Illumina paired-end short reads are supported
