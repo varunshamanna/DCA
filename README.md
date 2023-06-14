@@ -9,6 +9,7 @@ This pieline can be used to evaluate Depth, Coverage and Heterozygous SNP count 
 
 Requirement:
 -[Nextflow](https://www.nextflow.io/)
+
 -[Docker](https://www.docker.com/)
 
 ## Accepted Inputs
