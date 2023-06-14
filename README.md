@@ -11,13 +11,13 @@ Requirement:
 Nextflow
 Docker
 
-Accepted Inputs
-Currently, only Illumina paired-end short reads are supported
-Each sample is expected to be a pair of raw reads following this file name pattern:
-*_{,R}{1,2}{,_001}.{fq,fastq}{,.gz}
-example 1: SampleName_R1_001.fastq.gz, SampleName_R2_001.fastq.gz
-example 2: SampleName_1.fastq.gz, SampleName_2.fastq.gz
-example 3: SampleName_R1.fq, SampleName_R2.fq
+## Accepted Inputs
+- Currently, only Illumina paired-end short reads are supported
+- Each sample is expected to be a pair of raw reads following this file name pattern: 
+  - `*_{,R}{1,2}{,_001}.{fq,fastq}{,.gz}` 
+    - example 1: `SampleName_R1_001.fastq.gz`, `SampleName_R2_001.fastq.gz`
+    - example 2: `SampleName_1.fastq.gz`, `SampleName_2.fastq.gz`
+    - example 3: `SampleName_R1.fq`, `SampleName_R2.fq`
 
 ## Setup 
 1. Clone the repository (if Git is installed on your system)
