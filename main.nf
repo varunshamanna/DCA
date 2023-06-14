@@ -6,6 +6,7 @@ pipelineVersion = '1.0'
 
 
 include {TRIMMING} from "$projectDir/modules/trimming"
+include {ASSEMBLY_SHOVILL; ASSEMBLY_ASSESS; ASSEMBLY_QC } from "$projectDir/modules/assembly"
 include { INDEX_REFERENCE; MAPPING; SAM_TO_SORTED_BAM; SNP_CALL; HET_SNP_COUNT; MAPPING_QC } from "$projectDir/modules/coverage"
 include { startMessage; helpMessage } from "$projectDir/modules/messages"
 
@@ -25,6 +26,23 @@ if (params.help) {
     //Do Trimming using Fastp
     TRIMMING(raw_read_pairs_ch)
 
+    //Extract number of bases left after timming from fastp output i.e .json
+    //READ_QC(TRIMMING.out.json, params.length_low, params.depth)
+
+    //Do assembly and 
+    ASSEMBLY_ch = ASSEMBLY_SHOVILL(TRIMMING.out.processed_reads, params.min_contig_length)
+    
+    
+    //Assembly assess using quast
+    ASSEMBLY_ASSESS(ASSEMBLY_ch)
+
+    //Evaluate depth by the number of bases and assembly length = Assembly length/number of bases
+    ASSEMBLY_QC(
+        ASSEMBLY_ASSESS.out.report,
+        TRIMMING.out.json,            
+        params.depth
+    )
+
     //Indexing reference using BWA
     INDEX_REFERENCE(file(params.reference))
 
@@ -41,13 +59,15 @@ if (params.help) {
     MAPPING_QC(
         SAM_TO_SORTED_BAM.out.ref_coverage
         .join(SAM_TO_SORTED_BAM.out.ref_depth, failOnDuplicate: true, failOnMismatch: true)
-        .join(HET_SNP_COUNT.out.result, failOnDuplicate: true, failOnMismatch: true), 
-        params.ref_coverage,
+        .join(HET_SNP_COUNT.out.result, failOnDuplicate: true, failOnMismatch: true),
+         params.ref_coverage,
         params.het_snp_site,
         params.depth)
     MAPPING_QC.out.result
     .join(MAPPING_QC.out.info, failOnDuplicate: true, remainder: true)
         .map { (it[-1] == null) ? it[0..-2] + ['_'] * 3 : it }
+    .join(ASSEMBLY_QC.out.info, failOnDuplicate: true, remainder: true)
+       .map { (it[-1] == null) ? it[0..-2] + ['_'] * 3: it }
     .map { it.join',' }
     .collectFile(
         name: 'Depth_Coverage_results.csv',
@@ -55,7 +75,7 @@ if (params.help) {
         seed: [
             'Sample_ID',
             'Mapping_QC',
-            'Ref_Cov_%', 'Het-SNP#', 'Seq_Depth' 
+            'Ref_Cov_%', 'Het-SNP#', 'Mapping_Depth', 'Assembly_Depth', 'Assembly_Depth_QC'
             ].join(','),
         sort: { it.split(',')[0] },
         newLine: true
