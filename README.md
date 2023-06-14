@@ -8,6 +8,7 @@
 This pieline can be used to evaluate Depth, Coverage and Heterozygous SNP count to evaluate the mapping QC of raw reads.
 
 Requirement:
+
 -[Nextflow](https://www.nextflow.io/)
 
 -[Docker](https://www.docker.com/)
