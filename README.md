@@ -26,7 +26,7 @@ example 3: SampleName_R1.fq, SampleName_R2.fq
     ```
     or 
     
-    Download and unzip the [repository](https://github.com/HarryHung/gps-unified-pipeline/archive/refs/heads/master.zip)
+    Download and unzip the [repository](https://github.com/varunshamanna/DCA/archive/refs/heads/master.zip)
 2. Go into the local copy of the repository
     ```
     cd DCA
